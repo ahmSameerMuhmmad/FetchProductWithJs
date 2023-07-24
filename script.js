@@ -1,0 +1,51 @@
+(async () => {
+  const productContainerEl = document.getElementById("productContainer");
+  const searchInputEl = document.getElementById("searchInput");
+
+  const url = "https://fakestoreapi.com/products";
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      return error;
+    }
+  };
+  const products = await fetchProducts();
+  const generateProducts = (product) => {
+    return `
+   <div class="product_card">
+            <div class="image_container">
+                <img src="${product.image}" alt="" >
+            </div>
+            <div class="product_content">
+                <h2>${product.title}</h2>
+                <p>${product.description}</p>
+                <button>${product.price} $</button>
+            </div>
+        </div>`;
+  };
+  const renderProducts = (products) => {
+    productContainerEl.innerHTML = "";
+    products.forEach((product) => {
+      productContainerEl.innerHTML += generateProducts(product);
+    });
+  };
+  const checkTextContains = (text, searchText) => {
+    return text.toString().toLowerCase().includes(searchText);
+  };
+  const filterHandler = (event) => {
+    const searchText = event.target.value.toLowerCase();
+    const filterProducts = products.filter((product) => {
+      return (
+        checkTextContains(product.description, searchText) ||
+        checkTextContains(product.title, searchText) ||
+        checkTextContains(product.price, searchText)
+      );
+    });
+    renderProducts(filterProducts);
+  };
+  searchInputEl.addEventListener("keyup", filterHandler);
+  renderProducts(products);
+})();
